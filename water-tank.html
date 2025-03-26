@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Water Trapping Between Blocks</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Water Trapping Between Blocks</h1>
+
+      <div>
+        <label for="heightInput">Enter Block Heights (comma separated): </label>
+        <input
+          type="text"
+          id="heightInput"
+          placeholder="e.g. 0,1,0,2,1,0,1,3"
+        />
+
+        <button onclick="visualizeWater()">Generate Visualization</button>
+      </div>
+
+      <div id="result">
+        <svg id="svgCanvas" width="500" height="300"></svg>
+      </div>
+
+      <p id="waterVolumeDisplay"></p>
+    </div>
+
+    <script src="water-tank-script.js"></script>
+  </body>
+</html>
