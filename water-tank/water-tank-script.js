@@ -46,8 +46,26 @@ function drawVisualization(heights, waterVolume) {
   const blockScale = 20;
   const totalHeight = Math.floor(svgElement.height.baseVal.value / blockScale);
 
+  // Draw building blocks
+  heights.forEach((height, i) => {
+    const block = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "rect"
+    );
+
+    block.setAttribute("x", i * widthPerBlock);
+    block.setAttribute(
+      "y",
+      svgElement.height.baseVal.value - height * blockScale
+    );
+    block.setAttribute("width", widthPerBlock);
+    block.setAttribute("height", height * blockScale);
+    block.setAttribute("fill", "#ffff00");
+    svgElement.appendChild(block);
+  });
+
   // Draw trapped water
-  for (let i = 1; i < heights.length - 1; i++) {
+  for (let i = 0; i < heights.length; i++) {
     const leftMax = Math.max(...heights.slice(0, i + 1));
     const rightMax = Math.max(...heights.slice(i, heights.length));
     const waterHeight = Math.min(leftMax, rightMax) - heights[i];
@@ -61,7 +79,7 @@ function drawVisualization(heights, waterVolume) {
       waterBlock.setAttribute("x", i * widthPerBlock);
       waterBlock.setAttribute(
         "y",
-        svgElement.height.baseVal.value - waterHeight * blockScale - heights[i]
+        svgElement.height.baseVal.value - (heights[i] + waterHeight) * blockScale
       );
       waterBlock.setAttribute("width", widthPerBlock);
       waterBlock.setAttribute("height", waterHeight * blockScale);
