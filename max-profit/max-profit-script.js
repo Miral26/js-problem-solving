@@ -15,7 +15,7 @@ function findMaxEarnings(timeUnits) {
     }
 
     // Build Theatre if time remains
-    if (remainingTime >= THEATRE.time) {
+    if (remainingTime > THEATRE.time) {
       tryBuildingOptions(
         remainingTime - THEATRE.time,
         t + 1, p, c,
@@ -24,7 +24,7 @@ function findMaxEarnings(timeUnits) {
     }
 
     // Build Pub if time remains
-    if (remainingTime >= PUB.time) {
+    if (remainingTime > PUB.time) {
       tryBuildingOptions(
         remainingTime - PUB.time,
         t, p + 1, c,
@@ -33,7 +33,7 @@ function findMaxEarnings(timeUnits) {
     }
 
     // Build Commercial Park if time remains
-    if (remainingTime >= COMMERCIAL_PARK.time) {
+    if (remainingTime > COMMERCIAL_PARK.time) {
       tryBuildingOptions(
         remainingTime - COMMERCIAL_PARK.time,
         t, p, c + 1,
