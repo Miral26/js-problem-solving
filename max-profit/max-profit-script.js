@@ -3,49 +3,91 @@ const PUB = { time: 4, rate: 1000 };
 const COMMERCIAL_PARK = { time: 10, rate: 3000 };
 
 function findMaxEarnings(timeUnits) {
-  let maxEarnings = 0;
-  let bestCombinations = [];
 
-  function tryBuildingOptions(remainingTime, t, p, c, currentEarnings) {
-    if (currentEarnings > maxEarnings) {
-      maxEarnings = currentEarnings;
-      bestCombinations = [{ T: t, P: p, C: c }];
-    } else if (currentEarnings === maxEarnings) {
-      bestCombinations.push({ T: t, P: p, C: c });
+  const dp = new Array(timeUnits + 1).fill(null).map(() => ({
+    earnings: 0,
+    combinations: []
+  }));
+
+  dp[0] = { earnings: 0, combinations: [{ T: 0, P: 0, C: 0 }] };
+
+
+  for (let t = 1; t <= timeUnits; t++) {
+    let maxEarnings = 0;
+    let bestCombinations = [];
+
+    if (t >= THEATRE.time) {
+      const remainingTime = t - THEATRE.time;
+      const earnings = dp[remainingTime].earnings + (remainingTime * THEATRE.rate);
+      
+      if (earnings > maxEarnings) {
+        maxEarnings = earnings;
+        bestCombinations = dp[remainingTime].combinations.map(combo => ({
+          T: combo.T + 1,
+          P: combo.P,
+          C: combo.C
+        }));
+      } else if (earnings === maxEarnings) {
+        bestCombinations.push(...dp[remainingTime].combinations.map(combo => ({
+          T: combo.T + 1,
+          P: combo.P,
+          C: combo.C
+        })));
+      }
     }
 
-    // Build Theatre if time remains
-    if (remainingTime > THEATRE.time) {
-      tryBuildingOptions(
-        remainingTime - THEATRE.time,
-        t + 1, p, c,
-        currentEarnings + (remainingTime - THEATRE.time) * THEATRE.rate
-      );
+    if (t >= PUB.time) {
+      const remainingTime = t - PUB.time;
+      const earnings = dp[remainingTime].earnings + (remainingTime * PUB.rate);
+      
+      if (earnings > maxEarnings) {
+        maxEarnings = earnings;
+        bestCombinations = dp[remainingTime].combinations.map(combo => ({
+          T: combo.T,
+          P: combo.P + 1,
+          C: combo.C
+        }));
+      } else if (earnings === maxEarnings) {
+        bestCombinations.push(...dp[remainingTime].combinations.map(combo => ({
+          T: combo.T,
+          P: combo.P + 1,
+          C: combo.C
+        })));
+      }
     }
 
-    // Build Pub if time remains
-    if (remainingTime > PUB.time) {
-      tryBuildingOptions(
-        remainingTime - PUB.time,
-        t, p + 1, c,
-        currentEarnings + (remainingTime - PUB.time) * PUB.rate
-      );
+    if (t >= COMMERCIAL_PARK.time) {
+      const remainingTime = t - COMMERCIAL_PARK.time;
+      const earnings = dp[remainingTime].earnings + (remainingTime * COMMERCIAL_PARK.rate);
+      
+      if (earnings > maxEarnings) {
+        maxEarnings = earnings;
+        bestCombinations = dp[remainingTime].combinations.map(combo => ({
+          T: combo.T,
+          P: combo.P,
+          C: combo.C + 1
+        }));
+      } else if (earnings === maxEarnings) {
+        bestCombinations.push(...dp[remainingTime].combinations.map(combo => ({
+          T: combo.T,
+          P: combo.P,
+          C: combo.C + 1
+        })));
+      }
     }
 
-    // Build Commercial Park if time remains
-    if (remainingTime > COMMERCIAL_PARK.time) {
-      tryBuildingOptions(
-        remainingTime - COMMERCIAL_PARK.time,
-        t, p, c + 1,
-        currentEarnings + (remainingTime - COMMERCIAL_PARK.time) * COMMERCIAL_PARK.rate
-      );
+    if (maxEarnings === 0) {
+      dp[t] = dp[t - 1];
+    } else {
+      const uniqueCombinations = Array.from(new Set(bestCombinations.map(JSON.stringify))).map(JSON.parse);
+      dp[t] = {
+        earnings: maxEarnings,
+        combinations: uniqueCombinations
+      };
     }
   }
 
-  // Start properties build
-  tryBuildingOptions(timeUnits, 0, 0, 0, 0);
-
-  return { maxEarnings, solutions: bestCombinations };
+  return dp[timeUnits];
 }
 
 function calculate() {
@@ -66,19 +108,19 @@ function calculate() {
       return;
     }
 
-    const { maxEarnings, solutions } = findMaxEarnings(units);
+    const { earnings, combinations } = findMaxEarnings(units);
 
     const resultCard = document.createElement("div");
     resultCard.classList.add("result-card");
 
     let solutionsHTML = "";
-    solutions.forEach((sol, idx) => {
+    combinations.forEach((sol, idx) => {
       solutionsHTML += `<p>${idx + 1}. T: ${sol.T}, P: ${sol.P}, C: ${sol.C}</p>`;
     });
 
     resultCard.innerHTML = `
       <h3>Time Units: ${units}</h3>
-      <p><strong>Earnings:</strong> $${maxEarnings}</p>
+      <p><strong>Earnings:</strong> $${earnings}</p>
       <div>${solutionsHTML}</div>
     `;
 
